@@ -22,19 +22,19 @@
             font-family: 'Nunito', sans-serif;
             background-color: #f1f5f9;
         }
-      .tabulator.tabulator-header.tabulator-col {
+     .tabulator.tabulator-header.tabulator-col {
             background-color: #f8fafc;
         }
-      .tabulator-row.tabulator-row-even {
+     .tabulator-row.tabulator-row-even {
             background-color: #f8fafc;
         }
-      .tabulator.tabulator-cell {
+     .tabulator.tabulator-cell {
             border-right: 1px solid #e2e8f0;
         }
-      .tabulator.tabulator-cell:last-of-type {
+     .tabulator.tabulator-cell:last-of-type {
             border-right: none;
         }
-      .tooltip {
+     .tooltip {
             visibility: hidden;
             opacity: 0;
             transition: opacity 0.3s;
@@ -304,7 +304,7 @@
             function initAppButtons() {
                 addRiskBtn.addEventListener('click', () => {
                     if (riskTable) {
-                        riskTable.addRow({ risk: "Novo Risco...", probability: "Baixa", impact: "Baixa" }, true);
+                        riskTable.addRow({ risk: "Novo Risco...", probability: "Baixa", impact: "Baixo" }, true);
                         showToast("Novo risco adicionado no topo da tabela.", "info");
                     }
                 });
@@ -505,7 +505,7 @@
 
             function calculateRiskLevel(probability, impact) {
                 const pMap = { 'Baixa': 1, 'Média': 2, 'Alta': 3 };
-                const iMap = { 'Baixo': 1, 'Médio': 2, 'Alta': 3 };
+                const iMap = { 'Baixo': 1, 'Médio': 2, 'Alta': 3, 'Extremo': 4 };
                 const score = (pMap[probability] |
 
 | 1) * (iMap[impact] |
