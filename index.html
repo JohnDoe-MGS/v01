@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>COMPLIANCE VERITAS - Plataforma de Gestão</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+    
+    <link href="https://unpkg.com/tabulator-tables@5.6.1/dist/css/tabulator_modern.min.css" rel="stylesheet">
+    
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+
+    <style>
+        body {
+            font-family: 'Nunito', sans-serif;
+            background-color: #f1f5f9;
+        }
+      .tabulator.tabulator-header.tabulator-col {
+            background-color: #f8fafc;
+        }
+      .tabulator-row.tabulator-row-even {
+            background-color: #f8fafc;
+        }
+      .tabulator.tabulator-cell {
+            border-right: 1px solid #e2e8f0;
+        }
+      .tabulator.tabulator-cell:last-of-type {
+            border-right: none;
+        }
+      .tooltip {
+            visibility: hidden;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        #contingency-title:hover.tooltip {
+            visibility: visible;
+            opacity: 1;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="login-section" class="min-h-screen flex flex-col items-center justify-center bg-cover bg-center" style="background-image: url('https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=2070&auto=format&fit=crop');">
+        <div class="bg-white/95 backdrop-blur-sm w-full max-w-md p-8 space-y-6 rounded-xl shadow-2xl">
+            <div class="text-center">
+                <h1 class="text-3xl font-extrabold text-gray-900">COMPLIANCE VERITAS</h1>
+                <p class="mt-2 text-gray-600">Faça login para aceder à sua plataforma.</p>
+            </div>
+            <form id="loginForm" class="space-y-6">
+                <div>
+                    <label for="email" class="text-sm font-bold text-gray-700 tracking-wide">E-mail</label>
+                    <input id="email" name="email" type="email" autocomplete="email" required class="w-full text-base py-2 border-b border-gray-300 focus:outline-none focus:border-[#003f5c] transition-colors" placeholder="admin@veritas.com">
+                </div>
+                <div class="relative">
+                    <label for="password" class="text-sm font-bold text-gray-700 tracking-wide">Senha</label>
+                    <input id="password" name="password" type="password" autocomplete="current-password" required class="w-full text-base py-2 border-b border-gray-300 focus:outline-none focus:border-[#003f5c] transition-colors pr-10" placeholder="password">
+                    <button type="button" id="togglePassword" class="absolute inset-y-0 right-0 top-5 pr-3 flex items-center text-sm leading-5" aria-label="Alternar visibilidade da senha">
+                        <i id="eye-open" class="fas fa-eye h-6 w-6 text-gray-500"></i>
+                        <i id="eye-closed" class="fas fa-eye-slash h-6 w-6 text-gray-500 hidden"></i>
+                    </button>
+                </div>
+                <div class="flex items-center justify-between">
+                    <div class="text-sm">
+                        <a href="#" class="font-semibold text-[#003f5c] hover:text-[#005f73]">Esqueceu a sua senha?</a>
+                    </div>
+                </div>
+                <div>
+                    <button type="submit" class="w-full flex justify-center bg-[#003f5c] text-gray-100 p-3 rounded-full tracking-wide font-semibold shadow-lg cursor-pointer transition-all duration-300 ease-in-out hover:bg-[#005f73] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#003f5c]">
+                        Entrar
+                    </button>
+                </div>
+            </form>
+            <div class="text-center mt-4">
+                <p class="text-gray-600">Ainda não tem uma conta? <a href="#" class="font-bold text-[#003f5c] hover:text-[#005f73]">Inscrever-se</a></p>
+            </div>
+        </div>
+    </div>
+
+    <div id="app-container" class="hidden">
+        <header id="app-header" class="bg-[#003f5c] text-white p-4 shadow-md sticky top-0 z-50">
+            <div class="container mx-auto flex justify-between items-center">
+                <div class="flex items-center gap-4">
+                    <h1 class="text-2xl font-bold">Compliance Veritas</h1>
+                    <span class="hidden md:block text-lg text-gray-400">EMPRESA X</span>
+                </div>
+                <nav class="hidden md:flex items-center gap-2 relative">
+                    <div class="relative group">
+                        <button class="tools-dropdown-btn flex items-center gap-2 px-4 py-2 rounded-md hover:bg-white/10 transition-colors">
+                            <i class="fas fa-tools"></i> Ferramentas <i class="fas fa-chevron-down text-xs"></i>
+                        </button>
+                        <div class="tools-dropdown-content absolute right-0 mt-2 w-56 bg-white text-black rounded-md shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none group-hover:pointer-events-auto">
+                            <a href="#compliance-card-section" class="block px-4 py-2 hover:bg-gray-100">O que é Compliance?</a>
+                            <a href="#risk-matrices-section" class="block px-4 py-2 hover:bg-gray-100">Matriz de Riscos</a>
+                            <a href="#risk-visualization-section" class="block px-4 py-2 hover:bg-gray-100">Visualização de Riscos</a>
+                            <a href="#plans-section" class="block px-4 py-2 hover:bg-gray-100">Planos de Ação</a>
+                        </div>
+                    </div>
+                </nav>
+                <div class="flex items-center gap-4">
+                    <button class="relative p-2 rounded-full hover:bg-white/10 transition-colors" id="notifications-btn" aria-label="Notificações">
+                        <i class="fas fa-bell"></i>
+                        <span class="absolute top-0 right-0 block h-3 w-3 bg-red-500 rounded-full border-2 border-[#003f5c]"></span>
+                    </button>
+                    <div class="relative group">
+                        <button class="user-dropdown-btn p-2 rounded-full hover:bg-white/10 transition-colors" aria-label="Menu do Utilizador">
+                            <i class="fas fa-user-circle text-2xl"></i>
+                        </button>
+                        <div class="user-dropdown-content absolute right-0 mt-2 w-48 bg-white text-black rounded-md shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none group-hover:pointer-events-auto">
+                            <a href="#" class="block px-4 py-2 hover:bg-gray-100">Configurações</a>
+                            <a href="#" id="logout-btn" class="block px-4 py-2 hover:bg-gray-100">Sair</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <main class="container mx-auto p-4 md:p-8 space-y-8">
+            <section id="compliance-card-section" class="bg-white p-6 rounded-lg shadow-md">
+                <h2 class="text-2xl font-bold text-[#003f5c] mb-4 pb-2 border-b border-gray-200">O que é, e por que adotar o Compliance?</h2>
+                <div class="space-y-2">
+                    <div class="accordion-item border rounded-md overflow-hidden">
+                        <button class="accordion-header w-full flex justify-between items-center p-4 bg-gray-50 hover:bg-gray-100 transition-colors text-left font-semibold text-gray-800">
+                            <span>Perspectiva Legal</span>
+                            <i class="fas fa-chevron-down transition-transform"></i>
+                        </button>
+                        <div class="accordion-content bg-white overflow-hidden max-h-0 transition-all duration-500 ease-in-out">
+                            <p class="p-4 text-gray-700">Sob o prisma legal, compliance significa garantir a conformidade com o ordenamento jurídico. No Brasil, isso inclui, mas não se limita, à Lei Anticorrupção (Lei nº 12.846/2013), que estabelece a responsabilidade objetiva de empresas por atos de corrupção. Um programa de compliance eficaz é um fator atenuante em caso de sanções, demonstrando a boa-fé da organização.</p>
+                        </div>
+                    </div>
+                    <div class="accordion-item border rounded-md overflow-hidden">
+                        <button class="accordion-header w-full flex justify-between items-center p-4 bg-gray-50 hover:bg-gray-100 transition-colors text-left font-semibold text-gray-800">
+                            <span>Perspectiva Ética</span>
+                            <i class="fas fa-chevron-down transition-transform"></i>
+                        </button>
+                        <div class="accordion-content bg-white overflow-hidden max-h-0 transition-all duration-500 ease-in-out">
+                            <p class="p-4 text-gray-700">Além das leis, o compliance abrange um compromisso com os valores e princípios éticos da organização. Trata-se de "fazer a coisa certa", mesmo quando ninguém está a ver. Isso envolve criar uma cultura de integridade, onde o "Tone at the Top" (o exemplo da alta gestão) é fundamental para inspirar comportamentos éticos em todos os níveis da empresa.</p>
+                        </div>
+                    </div>
+                    <div class="accordion-item border rounded-md overflow-hidden">
+                        <button class="accordion-header w-full flex justify-between items-center p-4 bg-gray-50 hover:bg-gray-100 transition-colors text-left font-semibold text-gray-800">
+                            <span>Perspectiva Estratégica</span>
+                            <i class="fas fa-chevron-down transition-transform"></i>
+                        </button>
+                        <div class="accordion-content bg-white overflow-hidden max-h-0 transition-all duration-500 ease-in-out">
+                            <p class="p-4 text-gray-700">Longe de ser apenas um centro de custo, o compliance é um investimento estratégico. Organizações com programas de compliance robustos são vistas como mais confiáveis por investidores, clientes e parceiros. Isso se traduz numa vantagem competitiva, melhora a reputação da marca e é um pilar essencial para a sustentabilidade do negócio a longo prazo.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="risk-matrices-section" class="bg-white p-6 rounded-lg shadow-md">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-4">
+                    <h2 class="text-2xl font-bold text-[#003f5c] mb-4 md:mb-0">Matriz de Riscos Estratégicos</h2>
+                    <div class="flex gap-2">
+                        <button id="add-risk-btn" class="bg-[#003f5c] text-white px-4 py-2 rounded-md font-semibold hover:bg-[#005f73] transition-colors flex items-center gap-2">
+                            <i class="fas fa-plus"></i> Adicionar Risco
+                        </button>
+                        <button id="download-pdf-btn" class="bg-red-700 text-white px-4 py-2 rounded-md font-semibold hover:bg-red-800 transition-colors flex items-center gap-2">
+                            <i class="fas fa-file-pdf"></i> Baixar Relatório
+                        </button>
+                    </div>
+                </div>
+                <p class="text-sm text-gray-600 mb-4 bg-gray-50 p-3 rounded-md border-l-4 border-gray-300">
+                    <strong>CRITÉRIOS EXEMPLIFICATIVOS:</strong> Estar relacionado a objetivos estratégicos; pode ocasionar desgaste político; afeta diretamente o resultado de uma política pública; ocasiona prejuízo financeiro relevante; interrupção de operações; afeta a imagem da instituição.
+                </p>
+                <div id="risk-table-container" class="border rounded-md"></div>
+            </section>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div id="risk-visualization-section" class="lg:col-span-1 bg-white p-6 rounded-lg shadow-md">
+                    <h2 class="text-2xl font-bold text-[#003f5c] mb-4 pb-2 border-b border-gray-200">Nível de Risco</h2>
+                    <div class="chart-container w-full h-64 md:h-80 flex items-center justify-center">
+                        <canvas id="risk-chart"></canvas>
+                    </div>
+                </div>
+
+                <div id="plans-section" class="lg:col-span-2 bg-white p-6 rounded-lg shadow-md">
+                    <h2 class="text-2xl font-bold text-[#003f5c] mb-4 pb-2 border-b border-gray-200">Planos de Ação e Contingência</h2>
+                    <div class="space-y-6">
+                        <div>
+                            <div class="flex justify-between items-center mb-2">
+                                <h3 class="text-xl font-semibold text-gray-800">Planos de Ação</h3>
+                                <button class="text-sm bg-[#003f5c] text-white px-3 py-1 rounded-md hover:bg-[#005f73] transition-colors">
+                                    <i class="fas fa-plus"></i> Adicionar
+                                </button>
+                            </div>
+                            <div class="space-y-2">
+                                <div class="bg-gray-50 p-3 rounded-md border flex justify-between items-center">
+                                    <div>
+                                        <h4 class="font-semibold">Revisar Política de Fornecedores</h4>
+                                        <p class="text-xs text-gray-500">Responsável: João Silva | Prazo: 30/08/2024</p>
+                                    </div>
+                                    <div class="text-gray-500"><i class="fas fa-edit hover:text-[#005f73]"></i> <i class="fas fa-trash hover:text-red-600"></i></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="flex justify-between items-center mb-2">
+                                <h3 id="contingency-title" class="text-xl font-semibold text-gray-800 flex items-center gap-2 relative">
+                                    Planos de Contingência
+                                    <i class="fas fa-info-circle text-gray-400 cursor-help"></i>
+                                    <div class="tooltip absolute bottom-full mb-2 w-72 bg-gray-800 text-white text-xs rounded-md p-2">
+                                        Planos para mitigar <strong>DANOS</strong> de riscos de nível <strong>EXTREMO</strong>. Simulações periódicas são obrigatórias.
+                                        <div class="absolute top-full left-1/2 -translate-x-1/2 w-0 h-0 border-x-8 border-x-transparent border-t-8 border-t-gray-800"></div>
+                                    </div>
+                                </h3>
+                                <button class="text-sm bg-[#003f5c] text-white px-3 py-1 rounded-md hover:bg-[#005f73] transition-colors">
+                                    <i class="fas fa-plus"></i> Adicionar
+                                </button>
+                            </div>
+                            <p class="text-sm text-center text-gray-400 p-4">Nenhum plano de contingência necessário.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script type="text/javascript" src="https://unpkg.com/tabulator-tables@5.6.1/dist/js/tabulator.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+
+            //======================================================================
+            // 1. SELETORES DE ELEMENTOS DOM
+            //======================================================================
+            const loginSection = document.getElementById('login-section');
+            const appContainer = document.getElementById('app-container');
+            const loginForm = document.getElementById('loginForm');
+            const emailInput = document.getElementById('email');
+            const passwordInput = document.getElementById('password');
+            const togglePasswordBtn = document.getElementById('togglePassword');
+            const eyeOpenIcon = document.getElementById('eye-open');
+            const eyeClosedIcon = document.getElementById('eye-closed');
+            const logoutBtn = document.getElementById('logout-btn');
+            const addRiskBtn = document.getElementById('add-risk-btn');
+            const downloadPdfBtn = document.getElementById('download-pdf-btn');
+            const accordionItems = document.querySelectorAll('.accordion-item');
+
+            let riskTable = null;
+            let riskChart = null;
+
+            //======================================================================
+            // 2. DADOS INICIAIS E CONFIGURAÇÕES
+            //======================================================================
+            const initialData =;
+
+            initialData.forEach(item => {
+                item.riskLevel = calculateRiskLevel(item.probability, item.impact);
+            });
+
+            //======================================================================
+            // 3. FUNÇÕES DE INICIALIZAÇÃO
+            //======================================================================
+
+            function init() {
+                initAuth();
+                initUIEventListeners();
+            }
+
+            function initAuth() {
+                loginForm.addEventListener('submit', handleLogin);
+                togglePasswordBtn.addEventListener('click', togglePasswordVisibility);
+                logoutBtn.addEventListener('click', handleLogout);
+            }
+
+            function initUIEventListeners() {
+                accordionItems.forEach(item => {
+                    const header = item.querySelector('.accordion-header');
+                    header.addEventListener('click', () => {
+                        const content = item.querySelector('.accordion-content');
+                        const icon = header.querySelector('i.fa-chevron-down');
+                        const isActive = content.style.maxHeight;
+
+                        accordionItems.forEach(otherItem => {
+                            if (otherItem!== item) {
+                                otherItem.querySelector('.accordion-content').style.maxHeight = null;
+                                otherItem.querySelector('.accordion-header i.fa-chevron-down').classList.remove('rotate-180');
+                            }
+                        });
+
+                        if (isActive) {
+                            content.style.maxHeight = null;
+                            icon.classList.remove('rotate-180');
+                        } else {
+                            content.style.maxHeight = content.scrollHeight + "px";
+                            icon.classList.add('rotate-180');
+                        }
+                    });
+                });
+            }
+
+            function initAppButtons() {
+                addRiskBtn.addEventListener('click', () => {
+                    if (riskTable) {
+                        riskTable.addRow({ risk: "Novo Risco...", probability: "Baixa", impact: "Baixa" }, true);
+                        showToast("Novo risco adicionado no topo da tabela.", "info");
+                    }
+                });
+
+                downloadPdfBtn.addEventListener('click', generatePdfReport);
+            }
+
+            function initTable() {
+                if (riskTable) return;
+
+                riskTable = new Tabulator("#risk-table-container", {
+                    height: "400px",
+                    data: initialData,
+                    layout: "fitColumns",
+                    responsiveLayout: "hide",
+                    history: true,
+                    columns: } },
+                        { title: "Impacto", field: "impact", width: 150, editor: "select", editorParams: { values: } },
+                        { title: "Nível de Risco", field: "riskLevel", width: 150, formatter: riskLevelFormatter, headerSort: false },
+                        {
+                            title: "Ações", hozAlign: "center", width: 100, headerSort: false, formatter: (cell) => {
+                                return `<button class="p-1 text-red-500 hover:text-red-700" aria-label="Excluir Risco"><i class="fas fa-trash"></i></button>`;
+                            },
+                            cellClick: (e, cell) => {
+                                if (confirm("Tem certeza que deseja excluir este risco?")) {
+                                    cell.getRow().delete();
+                                    showToast("Risco excluído com sucesso.", "success");
+                                }
+                            }
+                        },
+                    ],
+                    cellEdited: function (cell) {
+                        const rowData = cell.getRow().getData();
+                        const newRiskLevel = calculateRiskLevel(rowData.probability, rowData.impact);
+                        cell.getRow().update({ riskLevel: newRiskLevel });
+                        updateRiskChart();
+                    },
+                    rowDeleted: function (row) {
+                        updateRiskChart();
+                    },
+                    rowAdded: function (row) {
+                        const rowData = row.getData();
+                        const newRiskLevel = calculateRiskLevel(rowData.probability, rowData.impact);
+                        row.update({ riskLevel: newRiskLevel });
+                        updateRiskChart();
+                    }
+                });
+            }
+
+            function initChart() {
+                if (riskChart) return;
+
+                const ctx = document.getElementById('risk-chart').getContext('2d');
+                riskChart = new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        labels:,
+                        datasets:,
+                            backgroundColor: [
+                                'rgba(220, 38, 38, 0.8)',
+                                'rgba(249, 115, 22, 0.8)',
+                                'rgba(234, 179, 8, 0.8)',
+                                'rgba(34, 197, 94, 0.8)',
+                            ],
+                            borderColor: '#ffffff',
+                            borderWidth: 2,
+                            hoverOffset: 8
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                            },
+                            title: {
+                                display: false
+                            }
+                        }
+                    }
+                });
+                updateRiskChart();
+            }
+
+            //======================================================================
+            // 4. LÓGICA DE NEGÓCIO E MANIPULADORES DE EVENTOS
+            //======================================================================
+
+            function handleLogin(e) {
+                e.preventDefault();
+                const email = emailInput.value;
+                const password = passwordInput.value;
+
+                if (email === 'admin@veritas.com' && password === 'password') {
+                    loginSection.classList.add('hidden');
+                    appContainer.classList.remove('hidden');
+                    showToast('Login bem-sucedido! Bem-vindo.', 'success');
+                    
+                    initTable();
+                    initChart();
+                    initAppButtons();
+                } else {
+                    showToast('Email ou senha inválidos. Tente novamente.', 'error');
+                }
+            }
+
+            function handleLogout(e) {
+                e.preventDefault();
+                appContainer.classList.add('hidden');
+                loginSection.classList.remove('hidden');
+                emailInput.value = '';
+                passwordInput.value = '';
+                showToast('Sessão encerrada.', 'info');
+            }
+
+            function togglePasswordVisibility() {
+                const isPassword = passwordInput.type === 'password';
+                passwordInput.type = isPassword? 'text' : 'password';
+                eyeOpenIcon.classList.toggle('hidden',!isPassword);
+                eyeClosedIcon.classList.toggle('hidden', isPassword);
+            }
+
+            function updateRiskChart() {
+                if (!riskTable ||!riskChart) return;
+
+                const data = riskTable.getData();
+                const counts = { 'Extremo': 0, 'Alto': 0, 'Médio': 0, 'Baixo': 0 };
+
+                data.forEach(row => {
+                    if (counts.hasOwnProperty(row.riskLevel)) {
+                        counts[row.riskLevel]++;
+                    }
+                });
+
+                riskChart.data.datasets.data = [
+                    counts['Extremo'],
+                    counts['Alto'],
+                    counts['Médio'],
+                    counts;
+                riskChart.update();
+            }
+
+            function generatePdfReport() {
+                if (!riskTable) {
+                    showToast("A tabela de riscos não foi inicializada.", "error");
+                    return;
+                }
+
+                showToast("A gerar o seu relatório PDF...", "info");
+
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF();
+
+                const tableData = riskTable.getData();
+                const head =];
+                const body = tableData.map(row => [row.risk, row.probability, row.impact, row.riskLevel]);
+
+                doc.setFontSize(18);
+                doc.text('Relatório de Risco Estratégico - COMPLIANCE VERITAS', 14, 22);
+                doc.setFontSize(11);
+                doc.setTextColor(100);
+                doc.text(`Relatório gerado em: ${new Date().toLocaleDateString()}`, 14, 30);
+
+                doc.autoTable({
+                    head: head,
+                    body: body,
+                    startY: 40,
+                    theme: 'grid',
+                    headStyles: { fillColor:  },
+                    alternateRowStyles: { fillColor:  },
+                    didDrawPage: function (data) {
+                        let footerStr = `Página ${doc.internal.getNumberOfPages()}`;
+                        doc.setFontSize(10);
+                        doc.text(footerStr, data.settings.margin.left, doc.internal.pageSize.height - 10);
+                    },
+                });
+
+                doc.save('relatorio_riscos_veritas.pdf');
+            }
+
+            //======================================================================
+            // 5. FUNÇÕES UTILITÁRIAS
+            //======================================================================
+
+            function riskLevelFormatter(cell) {
+                const value = cell.getValue();
+                let bgColorClass = 'bg-gray-200';
+                if (value === 'Extremo') bgColorClass = 'bg-red-600 text-white';
+                if (value === 'Alto') bgColorClass = 'bg-orange-500 text-white';
+                if (value === 'Médio') bgColorClass = 'bg-yellow-500 text-black';
+                if (value === 'Baixo') bgColorClass = 'bg-green-500 text-white';
+                
+                return `<div class="px-2 py-1 rounded-full text-center text-xs font-semibold ${bgColorClass}">${value |
+
+| 'N/A'}</div>`;
+            }
+
+            function calculateRiskLevel(probability, impact) {
+                const pMap = { 'Baixa': 1, 'Média': 2, 'Alta': 3 };
+                const iMap = { 'Baixo': 1, 'Médio': 2, 'Alta': 3 };
+                const score = (pMap[probability] |
+
+| 1) * (iMap[impact] |
+| 1);
+
+                if (score >= 9) return 'Extremo';
+                if (score >= 6) return 'Alto';
+                if (score >= 3) return 'Médio';
+                return 'Baixo';
+            }
+
+            function showToast(text, type = 'info') {
+                const backgroundColors = {
+                    info: 'linear-gradient(to right, #0ea5e9, #22d3ee)',
+                    success: 'linear-gradient(to right, #22c55e, #4ade80)',
+                    error: 'linear-gradient(to right, #ef4444, #f87171)',
+                };
+
+                Toastify({
+                    text: text,
+                    duration: 3000,
+                    close: true,
+                    gravity: "top",
+                    position: "right",
+                    stopOnFocus: true,
+                    style: {
+                        background: backgroundColors[type],
+                        borderRadius: "8px"
+                    },
+                }).showToast();
+            }
+
+            init();
+        });
+    </script>
+</body>
+</html>
